@@ -35,7 +35,7 @@ router.route("/signup").post((req, res)=> {
         connection.query(query, (error, results, fields) => {
             if(error) {
                 console.log(error)
-                res.status(500).send("Server error");
+                res.send("error");
             }
             else{
                 console.log(results)
@@ -133,13 +133,16 @@ router.route("/signin").post((req, res) => {
 
 router.route("/dashboard/ridehistory").post((req, res)=> {
     const connection = db.connect();
-        const query = `select * from driver;`;
+    const {username} = req.body;
+    console.log(username)
+        const query = `select * from history where username = '${username}';`;
         connection.query(query, (error, results, fields) => {
             if(error) {
                 console.log(error)
                 res.status(500).send("Server error");
             }
             else{
+                console.log('results are :')
                 console.log(results)
                 res.send(results)
             }
@@ -204,7 +207,7 @@ router.route('/updateloc').post((req, res) => {
 
 router.route('/vehicleloc').get((req, res) => {
     const connection = db.connect();
-    const query = 'select vehicle_loc from vehicle'
+    const query = `select vehicle_loc from vehicle`
     connection.query(query, (error, results, fields) => {
         if(error){
             console.log(error)
@@ -216,6 +219,71 @@ router.route('/vehicleloc').get((req, res) => {
         }
     })
 })
+
+router.route('/getride').post((req, res) => {
+    const connection = db.connect();
+    
+    const {username, model} = req.body
+    console.log(username)
+    console.log(model)
+    let query
+    if(model === 'ANY'){
+        query = `select d.vehicle_id from distance d, vehicle v where d.vehicle_id = v.vehicle_id and d.username = '${username}' and d.dist < 30.0 and d.vehicle_id not in(select vehicle_id from session)`
+    }
+    else{
+        query = `select d.vehicle_id from distance d, vehicle v where d.vehicle_id = v.vehicle_id and d.username = '${username}' and d.dist < 30.0 and v.model = '${model}' and d.vehicle_id not in(select vehicle_id from session)`
+    }
+    connection.query(query, (error, results, fields) =>{
+        
+        if(error){
+            console.log(error)
+            res.status(500).send('Internal Server Error Yahi se')
+        }
+        else{
+            console.log(results)
+            res.status(200).send(results)
+        }
+    })
+})
+
+router.route('/confirmride').post((req, res) => {
+    const connection = db.connect()
+    const {data, username} = req.body
+    const {source, model, dest, vehicle, price, lat_long} = JSON.parse(data);
+    const query = `insert into session (vehicle_id, username, source_loc, destination_loc, cost) values(${vehicle}, '${username}', '${lat_long}', '${dest}', ${price})` ;
+    connection.query(query, (error, results, fields) => {
+        if(error){
+            console.log(error)
+            res.status(500).send('Internal Server Error')
+        }
+        else{
+            console.log(results)
+            res.send('Inserted into session');
+        }
+    })
+})
+
+router.route('/getsession').post((req, res) => {
+    const connection = db.connect()
+    const {username} = req.body
+    const query = `select * from session where username = '${username}';`
+    connection.query(query, (error, results, fields) => {
+        if(error){
+            console.log(error)
+            res.status(500).send('Internal Server Error')
+        }
+        else{
+            console.log(results)
+            if(results.length > 0){
+                res.status(200).send('true')
+            }
+            else{
+                res.status(200).send('false')
+            }
+        }
+    })
+})
+
 router.route("/create-checkout").post(async(req, res) => {
     const {price, qty} = req.body
     const session = await stripe.checkout.sessions.create({
@@ -239,6 +307,32 @@ router.route("/create-checkout").post(async(req, res) => {
   });
   res.send(session.url);
 
+})
+
+router.route('/rideend').post((req, res) => {
+    const connection = db.connect()
+    const {username} = req.body
+    const query = `insert into history(vehicle_id, username, source_loc, destination_loc, cost) (select vehicle_id, username, source_loc, destination_loc, cost from session where username = '${username}')`
+    connection.query(query, (error, results, fields) => {
+        if (error){
+            console.log(error)
+            res.status(500).send('Internal Server Error')
+        }
+        else{
+            console.log(results)
+            //res.send('session from history completed');
+            let q = `delete from session where username = '${username}'`
+            connection.query(q, (error, results, fields) => {
+                if(error){
+                    console.log(error)
+                    res.status(500).send('Internal Server Error')
+                }
+                else{
+                    res.send(`deleted ${username}'s session`)
+                }
+            })
+        }
+    })
 })
 
 router.route('/updatelocsearch').post((req, res) => {
