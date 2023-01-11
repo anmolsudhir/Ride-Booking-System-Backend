@@ -250,7 +250,7 @@ router.route('/confirmride').post((req, res) => {
     const connection = db.connect()
     const {data, username} = req.body
     const {source, model, dest, vehicle, price, lat_long} = JSON.parse(data);
-    const query = `insert into session (vehicle_id, username, source_loc, destination_loc, cost) values(${vehicle}, '${username}', '${lat_long}', '${dest}', ${price})` ;
+    const query = `insert into session (vehicle_id, username, source_loc, destination_loc, cost) values(${vehicle}, '${username}', '${source}', '${dest}', ${price})` ;
     connection.query(query, (error, results, fields) => {
         if(error){
             console.log(error)
@@ -367,6 +367,38 @@ router.route('/updatelocsearch').post((req, res) => {
     })
 
 
+})
+
+router.route('/rev_geo').post((req, res) => {
+    const {latitude, longitude} = req.body;
+    axios.get(`https://apis.mapmyindia.com/advancedmaps/v1/3d3605631a79f428ea7c80ef7611d74e/rev_geocode?lat=${latitude}&lng=${longitude}&region=IND`)
+    .then((response) => {
+      console.log('The resules are : ')
+      console.log(response.data.results)
+      console.log(response.data.results[0].formatted_address)
+      //changeSourceSelected(response.data.results[0].formatted_address)
+      res.status(200).send(response.data.results[0].formatted_address)
+    })
+    .catch((err) => {
+        console.log(err)
+        res.status(404).send('Naah bhai nahi tumhare bas ka')
+    })
+})
+
+router.route('/getuserinfo').post((req, res) => {
+    const {username} = req.body
+    const connection = db.connect();
+    const query = `select * from passenger where username = '${username}'`
+    connection.query(query, (error, results, fields) => {
+        if(error){
+            console.log(error)
+            res.status(500).send('Internal Server Error')
+        }
+        else{
+            console.log(results)
+            res.send(results)
+        }
+    })
 })
 
 module.exports = router
