@@ -294,8 +294,8 @@ router.route("/create-checkout").post(async(req, res) => {
         unit_amount:price,
         currency:'inr',
         product_data:{
-            name:'Test',
-            description: 'test'
+            name:'Ride Booking',
+            description: 'Test Payment Gateway'
         }
        },
         quantity: qty,
