@@ -381,7 +381,7 @@ router.route('/rev_geo').post((req, res) => {
     })
     .catch((err) => {
         console.log(err)
-        res.status(404).send('Naah bhai nahi tumhare bas ka')
+        res.status(404).send('Not Found ')
     })
 })
 
