@@ -103,18 +103,18 @@ router.route("/signin").post((req, res) => {
                                     //let strings = `https://apis.mapmyindia.com/advancedmaps/v1/3d3605631a79f428ea7c80ef7611d74e/distance_matrix_eta/driving/${lat}%2C${long}%3B12.967622%2C77.714725`
                                     string = string + newstr;
              
-                                    // axios.get(string).then((response) => {
-                                    //     console.log(response.data)
-                                    //     console.log(response.data.results.distances[0])
-                                    //     console.log(res1)
-                                    //     console.log(response.data.results.distances[0].length)
-                                    //     console.log(res1.length)
-                                    //     let n = response.data.results.distances[0].length;
-                                    //     for(let i = 1; i < n; i++){
-                                    //         let dist = response.data.results.distances[0][i]/1000
-                                    //         connection.query(`update distance set dist = ${dist} where username = '${username}' and vehicle_id = ${res1[i-1].vehicle_id}`);
-                                    //     }
-                                    // }).catch((err) => console.log(err))
+                                    axios.get(string).then((response) => {
+                                        console.log(response.data)
+                                        console.log(response.data.results.distances[0])
+                                        console.log(res1)
+                                        console.log(response.data.results.distances[0].length)
+                                        console.log(res1.length)
+                                        let n = response.data.results.distances[0].length;
+                                        for(let i = 1; i < n; i++){
+                                            let dist = response.data.results.distances[0][i]/1000
+                                            connection.query(`update distance set dist = ${dist} where username = '${username}' and vehicle_id = ${res1[i-1].vehicle_id}`);
+                                        }
+                                    }).catch((err) => console.log(err))
                                 }
                             })
                         }
@@ -184,18 +184,18 @@ router.route('/updateloc').post((req, res) => {
                             //let strings = `https://apis.mapmyindia.com/advancedmaps/v1/3d3605631a79f428ea7c80ef7611d74e/distance_matrix_eta/driving/${lat}%2C${long}%3B12.967622%2C77.714725`
                             string = string + newstr;
                             console.log(string)
-                            // axios.get(string).then((response) => {
-                            //     console.log(response.data)
-                            //     console.log(response.data.results.distances[0])
-                            //     console.log(res1)
-                            //     console.log(response.data.results.distances[0].length)
-                            //     console.log(res1.length)
-                            //     let n = response.data.results.distances[0].length;
-                            //     for(let i = 1; i < n; i++){
-                            //         let dist = response.data.results.distances[0][i]/1000
-                            //         connection.query(`update distance set dist = ${dist} where username = '${username}' and vehicle_id = ${res1[i-1].vehicle_id}`);
-                            //     }
-                            // }).catch((err) => console.log("error"))
+                            axios.get(string).then((response) => {
+                                console.log(response.data)
+                                console.log(response.data.results.distances[0])
+                                console.log(res1)
+                                console.log(response.data.results.distances[0].length)
+                                console.log(res1.length)
+                                let n = response.data.results.distances[0].length;
+                                for(let i = 1; i < n; i++){
+                                    let dist = response.data.results.distances[0][i]/1000
+                                    connection.query(`update distance set dist = ${dist} where username = '${username}' and vehicle_id = ${res1[i-1].vehicle_id}`);
+                                }
+                            }).catch((err) => console.log("error"))
                         }
                     })
             res.send('updated loc');
