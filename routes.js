@@ -135,7 +135,7 @@ router.route("/dashboard/ridehistory").post((req, res)=> {
     const connection = db.connect();
     const {username} = req.body;
     console.log(username)
-        const query = `select * from history where username = '${username}';`;
+        const query = `select history.*, vehicle.model, vehicle.* from history inner join vehicle on history.vehicle_id = vehicle.vehicle_id where username = '${username}'`;
         connection.query(query, (error, results, fields) => {
             if(error) {
                 console.log(error)
@@ -397,6 +397,33 @@ router.route('/getuserinfo').post((req, res) => {
         else{
             console.log(results)
             res.send(results)
+        }
+    })
+})
+
+
+router.route('/editdetails').post((req, res) => {
+    const connection = db.connect()
+    const {data, username} = req.body
+    const editArr = JSON.parse(data)
+    console.log(editArr)
+    let query = 'update passenger set '
+    for(let i = 0; i < editArr.length; i++){
+        if(editArr[i].type === 'name' || editArr[i].type === 'address')
+            query = query + editArr[i].type + "='" + editArr[i].value + "'" 
+        else
+            query = query + editArr[i].type + "=" + editArr[i].value
+        if(i < editArr.length - 1) query = query + ' ,'
+    }
+    query = query + ` where username = '${username}';`
+    console.log(query)
+    connection.query(query, (err, results, fields) => {
+        if(err){
+            console.log(err)
+            res.status(500).send('Internal Server Error')
+        }
+        else{
+            res.send('Done')
         }
     })
 })
