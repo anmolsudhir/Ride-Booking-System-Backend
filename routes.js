@@ -134,8 +134,9 @@ router.route("/signin").post((req, res) => {
 router.route("/dashboard/ridehistory").post((req, res)=> {
     const connection = db.connect();
     const {username} = req.body;
+    console.log("USername")
     console.log(username)
-        const query = `select history.*, vehicle.model, vehicle.* from history inner join vehicle on history.vehicle_id = vehicle.vehicle_id where username = '${username}'`;
+        const query = `select history.*, vehicle.* from history inner join vehicle on history.vehicle_id = vehicle.vehicle_id where username = '${username}'`;
         connection.query(query, (error, results, fields) => {
             if(error) {
                 console.log(error)
@@ -395,6 +396,7 @@ router.route('/getuserinfo').post((req, res) => {
             res.status(500).send('Internal Server Error')
         }
         else{
+            console.log("Results are")
             console.log(results)
             res.send(results)
         }
